@@ -1,5 +1,7 @@
 # Elsewhere
 
+[Watch the hackathon demo](https://youtu.be/5RoCW4-B6sg)
+
 Open-world prototype built for the Reactor × Google World Models Hackathon, October 8, 2026.
 
 ```sh
