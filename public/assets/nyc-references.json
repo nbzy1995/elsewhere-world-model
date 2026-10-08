@@ -1,0 +1,82 @@
+[
+  {
+    "place": "Empire State Building, New York City",
+    "point": {
+      "lat": 40.752075,
+      "lon": -73.993437
+    },
+    "photoDate": "2023-02-08",
+    "reference": {
+      "title": "8&34 NYC 2023 (52996079026).jpg",
+      "image": "/assets/empire-state.jpg",
+      "description": "Night street view at Eighth Avenue and West 34th Street, with the illuminated Empire State Building visible down the street. The photograph includes traffic light trails and construction in the foreground.",
+      "credit": "Mobilus In Mobili",
+      "authorUrl": "https://www.flickr.com/people/52257493@N00",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "source": "https://commons.wikimedia.org/wiki/File:8%2634_NYC_2023_(52996079026).jpg",
+      "originalSource": "https://www.flickr.com/photos/52257493@N00/52996079026",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/8%2634_NYC_2023_%2852996079026%29.jpg/1920px-8%2634_NYC_2023_%2852996079026%29.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/8%2634_NYC_2023_%2852996079026%29.jpg",
+      "date": "2023-02-08 20:27",
+      "width": 1920,
+      "height": 1281,
+      "originalWidth": 7952,
+      "originalHeight": 5304,
+      "context": {
+        "title": "Eighth Avenue and West 34th Street, Manhattan",
+        "text": "A real street-level reference photographed on 8 February 2023. The Empire State Building is visible farther down 34th Street; this camera position is not at its entrance.",
+        "point": {
+          "lat": 40.752075,
+          "lon": -73.993437
+        },
+        "source": "https://commons.wikimedia.org/wiki/File:8%2634_NYC_2023_(52996079026).jpg"
+      },
+      "modifications": "Wikimedia-generated 1920-pixel thumbnail; no additional crop, recoloring or generated content.",
+      "mime": "image/jpeg",
+      "bytes": 671431,
+      "sha256": "a25842104bfbef038a8b427495ed04375be3b563993e069543a3bfac5206cc03",
+      "retrievedAt": "2026-10-08T18:22:00.882Z"
+    }
+  },
+  {
+    "place": "Times Square, New York City",
+    "point": {
+      "lat": 40.758889,
+      "lon": -73.985
+    },
+    "photoDate": "2023-09-16",
+    "reference": {
+      "title": "Times Square 2023.jpg",
+      "image": "/assets/times-square.jpg",
+      "description": "A busy street-level Times Square view with pedestrians, cars, illuminated billboards and the surrounding towers.",
+      "credit": "Sergiy Galyonkin",
+      "authorUrl": "https://www.flickr.com/people/sergesegal/",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "source": "https://commons.wikimedia.org/wiki/File:Times_Square_2023.jpg",
+      "originalSource": "https://www.flickr.com/photos/sergesegal/53231363818/",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Times_Square_2023.jpg/1920px-Times_Square_2023.jpg",
+      "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/4/44/Times_Square_2023.jpg",
+      "date": "2023-09-16 17:13:50",
+      "width": 1920,
+      "height": 1275,
+      "originalWidth": 9528,
+      "originalHeight": 6328,
+      "context": {
+        "title": "Times Square, Manhattan",
+        "text": "A real street-level Times Square reference photographed on 16 September 2023. The photograph records the scene and advertisements on that date.",
+        "point": {
+          "lat": 40.758889,
+          "lon": -73.985
+        },
+        "source": "https://commons.wikimedia.org/wiki/File:Times_Square_2023.jpg"
+      },
+      "modifications": "Wikimedia-generated 1920-pixel thumbnail; no additional crop, recoloring or generated content.",
+      "mime": "image/jpeg",
+      "bytes": 716787,
+      "sha256": "e5341f3b136d608598c891168d3293986adfa6678e1cd6dfd296a353c0b1e5fc",
+      "retrievedAt": "2026-10-08T18:22:00.893Z"
+    }
+  }
+]

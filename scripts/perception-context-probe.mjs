@@ -1,0 +1,5 @@
+import{chromium}from'playwright';import{writeFile}from'node:fs/promises';
+const context=await chromium.launchPersistentContext('artifacts/perception-gpu-profile',{headless:true,viewport:{width:1200,height:900},executablePath:'/Users/Yang/Library/Caches/ms-playwright/chromium-1217/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'});
+try{const page=context.pages()[0]||await context.newPage();await page.goto('http://127.0.0.1:5179/scripts/perception-context-probe.html');
+for(let i=0;i<120;i++){await page.waitForTimeout(1000);const s=await page.evaluate(()=>({done:window.done,error:window.probeError,count:window.results?.length,last:window.results?.at(-1)}));if(i%10===0)console.log(JSON.stringify(s));if(s.done||s.error){const r=await page.evaluate(()=>({at:new Date().toISOString(),results:window.results,error:window.probeError}));await writeFile('artifacts/perception-context-probe.json',JSON.stringify(r,null,2));if(s.error)throw new Error(s.error);console.log(JSON.stringify({done:true,count:r.results.length}));break;}}
+}finally{await context.close();}

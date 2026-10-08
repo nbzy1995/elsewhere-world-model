@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>World navigation UI test</title>
+<link rel="stylesheet" href="/src/style.css">
+<body class="playing"><main id="app"><canvas id="world" width="1440" height="900" tabindex="0"></canvas><div class="scrim"></div><div class="topbar"><span class="brand">Elsewhere</span><span class="status">Navigation UI test</span></div><section id="playUI"></section></main>
+<script type="module">
+import { createWorldNavigation } from '/src/navigation.js';
+const canvas=document.querySelector('canvas');
+const context=canvas.getContext('2d');
+const image=new Image();image.src='/assets/starting-world.png';image.onload=()=>context.drawImage(image,0,0,canvas.width,canvas.height);
+let world={characterId:'city',place:'New York',year:2026,scene:'city'};
+window.navigationEvents=[];
+window.callbackMode='success';
+window.pendingResolver=null;
+const apply=async (next,signal)=>{
+  if(window.callbackMode==='error')throw new Error('Test connection unavailable.');
+  if(window.callbackMode==='pending')await new Promise(resolve=>window.pendingResolver=resolve);
+  if(signal.aborted)return false;
+  world=next;
+  return true;
+};
+window.navigation=createWorldNavigation({
+  getWorld:()=>world,
+  getFrame:()=>canvas.toDataURL('image/jpeg',.5),
+  onOpen:()=>window.navigationEvents.push('open'),
+  onTime:async(year,{signal})=>{window.navigationEvents.push({kind:'time',year,place:world.place});return apply({...world,year},signal);},
+  onSwitch:async(entry,{signal})=>{window.navigationEvents.push({kind:'switch',id:entry.id,hasFrame:entry.image?.startsWith('data:')});return apply({...entry.world,characterId:entry.id,place:entry.place,year:entry.year},signal);},
+  onError:error=>window.navigationEvents.push({kind:'error',message:error.message}),
+});
+navigation.setCharacters([
+  {id:'city',name:'Explorer',place:'New York',year:2026,image:'/assets/starting-world.png',world:{scene:'city'}},
+  {id:'factory',name:'Builder',place:'Robotics factory',year:2026,image:'/assets/factory.png',world:{scene:'factory'}},
+  {id:'orbit',name:'Astronaut',place:'Low Earth orbit',year:2026,image:'/assets/cupola-interior.jpg',world:{scene:'orbit'}},
+]);
+window.render_game_to_text=()=>JSON.stringify({world,...navigation.getState(),events:window.navigationEvents});
+window.advanceTime=()=>Promise.resolve();
+window.navigationReady=true;
+</script></body></html>

@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>Perception context probe</title><pre id="status">Loading</pre><script type="module">
+import {pipeline,RawImage,env} from '@huggingface/transformers';
+import {warmup,selectObject,disposePerception} from '/src/perception.js';
+env.allowLocalModels=false;env.backends.onnx.wasm.numThreads=1;
+const status=document.getElementById('status');window.results=[];
+try{
+ await warmup();const classifier=await pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{dtype:'q8',device:'wasm'});
+ const base={computer:'a computer monitor with a screen, bezel and stand',vehicle:'a road vehicle or spacecraft',person:'a person',tool:'a handheld tool or loose machine component',door:'an architectural door or doorway',robot:'a physical industrial robot arm',object:'an ordinary object or piece of furniture'};
+ const physical={...base,computer:'a desktop computer monitor showing software on its flat screen',robot:'an industrial robotic arm with joints mounted on a base',tool:'a metal mechanical component or a hand tool'};
+ const screen={...base,computer:'an LCD computer display showing software, text or a 3D model',robot:'a real robot arm standing on a workbench',tool:'an electric motor or a loose mechanical part'};
+ const hologram={...screen,computer:'an LCD or holographic computer display showing software, text or a 3D model',robot:'a physical humanoid robot or industrial robot arm'};
+ for(const [file,name,point] of [['factory.png','old-monitor',{x:.875,y:.56}],['factory.png','old-robot',{x:.61,y:.4}],['factory.png','old-motor',{x:.51,y:.62}],['lunar-factory.png','lunar-monitor',{x:.855,y:.56}],['lunar-factory.png','lunar-robot',{x:.554,y:.47}],['lunar-factory.png','lunar-component',{x:.537,y:.75}]]){
+  let image=await RawImage.read(file==='lunar-factory.png'?'/artifacts/perception-lunar-original.png':'/assets/'+file);const original=document.createElement('canvas');original.width=image.width;original.height=image.height;original.getContext('2d').drawImage(image.toCanvas(),0,0);const url=original.toDataURL('image/jpeg',.92);image=await RawImage.read(url);const selection=await selectObject(url,point);const b=selection.bbox;
+  const bounds=[Math.round(b.x*image.width),Math.round(b.y*image.height),Math.round((b.x+b.w)*image.width)-1,Math.round((b.y+b.h)*image.height)-1];
+  const masked=image.toCanvas(),mc=masked.getContext('2d'),md=mc.getImageData(0,0,image.width,image.height);for(let i=0;i<selection.mask.length;i++)if(!selection.mask[i]){md.data[i*4]=128;md.data[i*4+1]=128;md.data[i*4+2]=128;}mc.putImageData(md,0,0);
+  const maskedImage=RawImage.fromCanvas(masked);
+  for(const [mode,padFactor] of [['mask',.08]]){
+   const [x1,y1,x2,y2]=bounds,pad=Math.round(Math.max(x2-x1,y2-y1)*padFactor);
+   const crop=await(mode==='mask'?maskedImage:image).crop([Math.max(0,x1-pad),Math.max(0,y1-pad),Math.min(image.width-1,x2+pad),Math.min(image.height-1,y2+pad)]);
+   const size=Math.max(crop.width,crop.height),square=new OffscreenCanvas(size,size),ctx=square.getContext('2d');ctx.fillStyle='#808080';ctx.fillRect(0,0,size,size);ctx.drawImage(crop.toCanvas(),(size-crop.width)/2,(size-crop.height)/2);
+   for(const [variant,labels]of [['screen',screen],['hologram',hologram]]){
+    const ranked=await classifier(RawImage.fromCanvas(square),Object.values(labels));const top=ranked.slice(0,3).map(x=>({label:Object.keys(labels).find(k=>labels[k]===x.label),score:x.score}));window.results.push({name,bounds,mode,padFactor,variant,top,maskCandidates:selection.maskCandidates});status.textContent=JSON.stringify(window.results.at(-1));
+   }
+  }
+ }
+ window.done=true;disposePerception();
+}catch(error){window.probeError=error.stack;status.textContent=error.stack;disposePerception();}
+</script>

@@ -1,0 +1,19 @@
+<!doctype html><meta charset="utf-8"><title>Perception classifier probe</title><pre id="status">Loading cached classifier</pre><script type="module">
+import {pipeline,RawImage,env} from '@huggingface/transformers';env.allowLocalModels=false;env.backends.onnx.wasm.numThreads=1;
+try {
+ const classifier=await pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{dtype:'q8',device:'wasm'});
+ const image=await RawImage.read('/assets/factory.png');
+ const current={computer:['a computer monitor with a screen, bezel and stand'],vehicle:['a road vehicle or spacecraft'],person:['a person'],tool:['a handheld tool or loose machine component'],door:['an architectural door or doorway'],robot:['a physical industrial robot arm'],object:['an ordinary object or piece of furniture']};
+ const ensemble={computer:['a desktop computer monitor','a laptop computer'],vehicle:['a car','a spacecraft'],person:['a person','a human body'],tool:['an electric motor','a handheld tool'],door:['a door','an open doorway'],robot:['an industrial robotic arm','a humanoid robot'],object:['a piece of furniture','an ordinary object']};
+ const results=[];
+ for(const [name,coords] of [['monitor',[1298,411,1650,648]],['motor',[828,566,870,614]]])for(const padFactor of [.18,.35,.5])for(const [variant,labels] of [['current',current],['ensemble',ensemble]]){
+  const [x1,y1,x2,y2]=coords,pad=Math.round(Math.max(x2-x1,y2-y1)*padFactor);
+  const crop=await image.crop([Math.max(0,x1-pad),Math.max(0,y1-pad),Math.min(image.width-1,x2+pad),Math.min(image.height-1,y2+pad)]);
+  const size=Math.max(crop.width,crop.height),square=new OffscreenCanvas(size,size),ctx=square.getContext('2d');ctx.fillStyle='#808080';ctx.fillRect(0,0,size,size);ctx.drawImage(crop.toCanvas(),(size-crop.width)/2,(size-crop.height)/2);
+  const output=await classifier(RawImage.fromCanvas(square),Object.values(labels).flat());
+  const scores=Object.fromEntries(Object.keys(labels).map(key=>[key,output.filter(p=>labels[key].includes(p.label)).reduce((s,p)=>s+p.score,0)]));
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);results.push({name,padFactor,variant,top:sorted.slice(0,3)});document.getElementById('status').textContent=JSON.stringify(results,null,2);
+ }
+ window.results=results;
+}catch(error){window.probeError=error.stack;document.getElementById('status').textContent=error.stack;}
+</script>

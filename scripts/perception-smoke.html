@@ -1,0 +1,29 @@
+<!doctype html><html><meta charset="utf-8"><title>Local object perception</title>
+<style>body{margin:0;background:#102022;color:#eaf5e8;font:16px system-ui}header{padding:16px 24px}canvas{display:block;width:100%}#status{color:#c7f899}</style>
+<header><b>Actual SlimSAM mask + CLIP object classification</b><div id="status">Starting…</div></header><canvas id="view"></canvas>
+<script type="module">
+import { warmup, selectObject, disposePerception } from '/src/perception.js';
+const image=new Image(); image.src='/assets/factory.png'; await image.decode();
+const canvas=document.getElementById('view'), ctx=canvas.getContext('2d'); canvas.width=image.naturalWidth; canvas.height=image.naturalHeight;ctx.drawImage(image,0,0);
+const captured=canvas.toDataURL('image/jpeg',.93);
+window.perceptionProgress=[]; window.perceptionStatus={stage:'warmup'};
+const started=performance.now();
+try {
+ window.warmupResult=await warmup(message=>{document.getElementById('status').textContent=message;window.perceptionProgress.push(message);});
+ window.warmupMs=performance.now()-started;
+ window.runSelection=async(point,quality)=>{
+  let frame=captured;if(quality){ctx.drawImage(image,0,0);frame=canvas.toDataURL('image/jpeg',quality);}
+  const result=await selectObject(frame,point);ctx.drawImage(image,0,0);
+  const overlay=ctx.getImageData(0,0,canvas.width,canvas.height),p=overlay.data;
+  for(let y=1;y<result.height-1;y++)for(let x=1;x<result.width-1;x++){
+   const i=y*result.width+x;if(!result.mask[i])continue;
+   const border=!result.mask[i-1]||!result.mask[i+1]||!result.mask[i-result.width]||!result.mask[i+result.width];
+   if(border){p[i*4]=206;p[i*4+1]=255;p[i*4+2]=99;}else{p[i*4]=Math.round(p[i*4]*.76+47);p[i*4+1]=Math.round(p[i*4+1]*.76+60);p[i*4+2]=Math.round(p[i*4+2]*.76+18);}
+  }
+  ctx.putImageData(overlay,0,0);ctx.beginPath();ctx.arc(point.x*canvas.width,point.y*canvas.height,7,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();
+  document.getElementById('status').textContent=`${result.label} · ${Math.round(result.confidence*100)}% relative label score · ${Math.round(result.elapsedMs)} ms · actual model mask`;
+  return {...result, mask:undefined, selectedPixels:result.mask.reduce((sum,x)=>sum+x,0)};
+ };
+ window.disposePerception=disposePerception;window.perceptionStatus={stage:'ready'};
+}catch(error){window.perceptionStatus={stage:'error',error:error.stack};document.getElementById('status').textContent=error.message;}
+</script></html>

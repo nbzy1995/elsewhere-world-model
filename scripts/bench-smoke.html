@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Robot workbench smoke test</title>
+<style>html,body{margin:0;background:#dce2e5}canvas{display:block;max-width:100%;height:auto}</style>
+<script type="module">
+  import { createWorkbench } from '/src/bench.js';
+  window.benchEvents = [];
+  window.bench = createWorkbench({ onChange: state => window.benchEvents.push(state) });
+  document.body.append(window.bench.canvas);
+  window.benchReady = true;
+</script></html>
